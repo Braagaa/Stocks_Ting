@@ -72,7 +72,8 @@ const selectedTitle = R.pipe(
 );
 
 app.get('/', (req, res) => {
-    res.json(selectedTitle(result));
+    //res.json(selectedTitle(result));
+    res.render('index', {stocks: selectedTitle(result)});
 });
 
 app.listen(3000, R.pipe(R.always('Listening to port 3000.'), console.log));

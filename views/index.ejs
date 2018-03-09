@@ -1,3 +1,36 @@
+<% include header %>
 <table class="pure-table">
-    
+    <thead>
+        <tr>
+            <th colspan="2">Info</th>
+            <th>CAD</th>
+            <th colspan="4">Dividend Growth Rates</th>
+            <th>Payout Ratio %</th>
+        </tr>
+        <tr>
+            <th>Ticker</th>
+            <th>Company</th>
+            <th>Yield</th>
+            <th>1-yr</th>
+            <th>3-yr</th>
+            <th>5-yr</th>
+            <th>10-yr</th>
+            <th>TTM EPS</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% stocks.forEach(stock => { %>
+            <tr>
+                <td><%= stock['Ticker'] %></td>
+                <td><%= stock['Company'] %></td>
+                <td><%= stock['Yield'] %></td>
+                <td><%= stock['1-yr'] %></td>
+                <td><%= stock['3-yr'] %></td>
+                <td><%= stock['5-yr'] %></td>
+                <td><%= stock['10-yr'] %></td>
+                <td><%= stock['TTM EPS'] %></td>
+            </tr>
+        <% }); %>
+    </tbody>
 </table>
+<% include footer %>
