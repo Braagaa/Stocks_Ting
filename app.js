@@ -4,6 +4,7 @@ const {join, resolve} = require('path');
 const express = require('express');
 const ejs = require('ejs');
 const roundTo = R.curry(require('round-to'));
+const opener = require('opener');
 
 const app = express();
 
@@ -72,8 +73,10 @@ const selectedTitle = R.pipe(
 );
 
 app.get('/', (req, res) => {
-    //res.json(selectedTitle(result));
     res.render('index', {stocks: selectedTitle(result)});
+    server.close();
 });
 
-app.listen(3000, R.pipe(R.always('Listening to port 3000.'), console.log));
+const server = app.listen(3000, () => {
+    opener('http://localhost:3000/');
+});
