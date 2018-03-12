@@ -8,6 +8,8 @@ const opener = require('opener');
 
 const app = express();
 
+app.use(express.static(resolve(__dirname, 'public')));
+
 app.set('view engine', 'ejs');
 app.set('views', resolve(__dirname, 'views'));
 
@@ -75,6 +77,10 @@ const selectedTitle = R.pipe(
 app.get('/', (req, res) => {
     res.render('index', {stocks: selectedTitle(result)});
     server.close();
+});
+
+app.get('/getStocks', (req, res) => {
+    res.json(selectedTitle(result));
 });
 
 const server = app.listen(3000, () => {

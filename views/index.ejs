@@ -8,29 +8,31 @@
             <th>Payout Ratio %</th>
         </tr>
         <tr>
-            <th>Ticker</th>
-            <th>Company</th>
-            <th>Yield</th>
-            <th>1-yr</th>
-            <th>3-yr</th>
-            <th>5-yr</th>
-            <th>10-yr</th>
-            <th>TTM EPS</th>
+            <th class="header">Ticker</th>
+            <th class="header">Company</th>
+            <th class="header">Yield</th>
+            <th class="header">1-yr</th>
+            <th class="header">3-yr</th>
+            <th class="header">5-yr</th>
+            <th class="header">10-yr</th>
+            <th class="header">TTM EPS</th>
         </tr>
     </thead>
     <tbody>
         <% stocks.forEach(stock => { %>
-            <tr>
-                <td><%= stock['Ticker'] %></td>
-                <td><%= stock['Company'] %></td>
-                <td><%= stock['Yield'] %></td>
-                <td><%= stock['1-yr'] %></td>
-                <td><%= stock['3-yr'] %></td>
-                <td><%= stock['5-yr'] %></td>
-                <td><%= stock['10-yr'] %></td>
-                <td><%= stock['TTM EPS'] %></td>
+            <tr class="stock">
+                <td class="ticker"><%= stock['Ticker'] %></td>
+                <td class="company"><%= stock['Company'] %></td>
+                <td class="yield"><%= stock['Yield'] %></td>
+                <td class="div1yr"><%= stock['1-yr'] %></td>
+                <td class="div3yr"><%= stock['3-yr'] %></td>
+                <td class="div5yr"><%= stock['5-yr'] %></td>
+                <td class="div10yr"><%= stock['10-yr'] %></td>
+                <td class="ttm"><%= stock['TTM EPS'] %></td>
             </tr>
         <% }); %>
     </tbody>
 </table>
+<script src="https://cdn.jsdelivr.net/npm/ramda@0.25.0/dist/ramda.min.js"></script>
+<script src="main.js"></script>
 <% include footer %>
