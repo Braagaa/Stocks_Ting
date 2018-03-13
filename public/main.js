@@ -7,6 +7,7 @@ const replace = R.invoker(2, 'replace');
 
 const removeFromParent = node => node.parentElement.removeChild(node);
 const appendChild = R.curry((parent, child) => parent.appendChild(child));
+const setStyle = R.curry((prop, value, style) => style[prop] = value);
 
 const getClassText = R.curry((child, parent) => 
     R.pipe(querySelector(child), R.prop('textContent'))(parent)
@@ -77,6 +78,11 @@ const getHeaderLogic = R.pipe(
 const tbody = document.querySelector('tbody');
 const sampleColumn = document.querySelectorAll('thead tr th')[1];
 const sampleRow = document.querySelector('tbody tr').children;
+const yieldRange = document.querySelectorAll('#yield-min, #yield-max');
+const dividendRange = document.querySelectorAll('#dividend-min, #dividend-max');
+const payoutRange = document.querySelectorAll('#payout-min, #payout-max');
+const yieldColumn = document.querySelectorAll('tbody .stock .yield');
+const payoutColumn = document.querySelectorAll('tbody .stock .ttm');
 
 const newListDisplay = R.pipe(
     R.prop('element'),
@@ -84,7 +90,34 @@ const newListDisplay = R.pipe(
     appendChild(tbody)
 );
 
-const thing = R.pipe(
+//highlight features
+
+const qualifiedForHighlight = R.curry((lt, gt, list) => 
+    R.filter(R.propSatisfies(
+        R.pipe(parseFloat, R.both(R.gte(R.__, lt), R.lte(R.__, gt))),
+        'textContent'
+    ))
+(list));
+
+const highLight = R.curry((column, range) => R.pipe(
+    R.sort((a, b) => a - b),
+    R.apply(qualifiedForHighlight),
+    R.applyTo(column),
+    R.map(R.prop('style')),
+    R.forEach(setStyle('backgroundColor', 'gold'))
+)(range));
+
+const validateValuesHightlight = (range, column) => R.pipe(
+    R.map(R.pipe(R.prop('value'), parseFloat)),
+    R.when(R.none(isNaN), highLight(column))
+)(range);
+
+const highLightSubmit = function(e) {
+    e.preventDefault();
+    validateValuesHightlight(yieldRange, yieldColumn);
+    validateValuesHightlight(payoutRange, payoutColumn);
+}
+const columnClick = R.pipe(
     R.prop('currentTarget'),
     R.tap(removeOtherHeaderOrders),
     R.juxt([getHeaderLogic, getColumnClass]),
@@ -95,5 +128,10 @@ const thing = R.pipe(
 
 R.pipe(
     querySelectorAll('.header'),
-    R.forEach(addEventListener('click', thing))
+    R.forEach(addEventListener('click', columnClick))
+)(document);
+
+R.pipe(
+    querySelector('#highlight-button'),
+    addEventListener('click', highLightSubmit)
 )(document);

@@ -1,4 +1,27 @@
 <% include header %>
+<form class="pure-form" id="highlight-options">
+    <fieldset>
+        <legend>Highlight Options</legend>
+        <label>Yield:</label>
+        <input type="text" id="yield-min" placeholder="Min">
+        <span> - </span>
+        <input type="text" id="yield-max" placeholder="Max">
+    </fieldset>
+    <fieldset>
+        <label>Dividend:</label>
+        <input type="text" id="dividend-min" placeholder="Min">
+        <span> - </span>
+        <input type="text" id="dividend-max" placeholder="Max">
+    </fieldset>
+    <fieldset>
+        <label>Payout Ratio:</label>
+        <input type="text" id="payout-min" placeholder="Min">
+        <span> - </span>
+        <input type="text" id="payout-max" placeholder="Max">
+    </fieldset>
+    <button id="highlight-button" class="pure-button pure-button-primary">Highlight</button>
+</form>
+
 <table class="pure-table pure-table-bordered">
     <thead>
         <tr>
