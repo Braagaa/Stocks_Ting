@@ -83,6 +83,7 @@ const dividendRange = document.querySelectorAll('#dividend-min, #dividend-max');
 const payoutRange = document.querySelectorAll('#payout-min, #payout-max');
 const yieldColumn = document.querySelectorAll('tbody .stock .yield');
 const payoutColumn = document.querySelectorAll('tbody .stock .ttm');
+const dividenColumns = document.querySelectorAll('.div1yr, .div3yr, .div5yr, .div10yr');
 
 const newListDisplay = R.pipe(
     R.prop('element'),
@@ -112,8 +113,15 @@ const validateValuesHightlight = (range, column) => R.pipe(
     R.when(R.none(isNaN), highLight(column))
 )(range);
 
+const takeOffAllHightlight = R.pipe(
+    R.flatten,
+    R.map(R.prop('style')),
+    R.forEach(setStyle('backgroundColor', 'transparent'))
+);
+
 const highLightSubmit = function(e) {
     e.preventDefault();
+    takeOffAllHightlight([yieldColumn, dividenColumns, payoutColumn]);
     validateValuesHightlight(yieldRange, yieldColumn);
     validateValuesHightlight(payoutRange, payoutColumn);
 }
