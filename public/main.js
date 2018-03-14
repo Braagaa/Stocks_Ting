@@ -78,6 +78,7 @@ const getHeaderLogic = R.pipe(
 const tbody = document.querySelector('tbody');
 const sampleColumn = document.querySelectorAll('thead tr th')[1];
 const sampleRow = document.querySelector('tbody tr').children;
+const allRows = document.querySelectorAll('tbody .stock');
 const yieldRange = document.querySelectorAll('#yield-min, #yield-max');
 const dividendRange = document.querySelectorAll('#dividend-min, #dividend-max');
 const payoutRange = document.querySelectorAll('#payout-min, #payout-max');
@@ -114,6 +115,7 @@ const validateValuesHightlight = (range, column) => R.pipe(
 )(range);
 
 const takeOffAllHightlight = R.pipe(
+    R.map(R.prop('children')),
     R.flatten,
     R.map(R.prop('style')),
     R.forEach(setStyle('backgroundColor', 'transparent'))
@@ -121,7 +123,7 @@ const takeOffAllHightlight = R.pipe(
 
 const highLightSubmit = function(e) {
     e.preventDefault();
-    takeOffAllHightlight([yieldColumn, dividenColumns, payoutColumn]);
+    takeOffAllHightlight(allRows);
     validateValuesHightlight(yieldRange, yieldColumn);
     validateValuesHightlight(dividendRange, dividenColumns);
     validateValuesHightlight(payoutRange, payoutColumn);
