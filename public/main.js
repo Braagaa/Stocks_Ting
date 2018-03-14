@@ -25,6 +25,18 @@ const order = R.curry(
     (order, prop, list) => R.sort(order(getPropOr(prop)), list)
 );
 
+const childGreenTest = R.curry((query, row) => R.pipe(
+    querySelector(query), 
+    R.path(['style', 'backgroundColor']), 
+    R.complement(R.equals('transparent')),
+)(row));
+
+const dividendGreenTest = R.pipe(
+    querySelectorAll('.div1yr, .div3yr, .div5yr, .div10yr'),
+    R.map(R.path(['style', 'backgroundColor'])),
+    R.any(R.complement(R.equals('transparent')))
+);
+
 const createList = {
     ticker: getClassText('.ticker'),
     company: getClassText('.company'),
@@ -36,6 +48,18 @@ const createList = {
     ttm: getTextParseFloat('.ttm'),
     element: R.identity
 };
+
+const greenHightlightTestObj = {
+    yieldTest: childGreenTest('.yield'),
+    payoutTest: childGreenTest('.ttm'),
+    dividendTest: dividendGreenTest
+};
+
+const greenPass = {
+    yieldTest: true,
+    payoutTest: true,
+    dividendTest: true
+}
 
 const headerLogic = [
     [R.contains('up'), R.always(R.ascend)], 
@@ -101,7 +125,7 @@ const qualifiedForHighlight = R.curry((lt, gt, list) =>
     ))
 (list));
 
-const highLight = R.curry((column, range) => R.pipe(
+const highlightGold = R.curry((column, range) => R.pipe(
     R.sort((a, b) => a - b),
     R.apply(qualifiedForHighlight),
     R.applyTo(column),
@@ -111,7 +135,7 @@ const highLight = R.curry((column, range) => R.pipe(
 
 const validateValuesHightlight = (range, column) => R.pipe(
     R.map(R.pipe(R.prop('value'), parseFloat)),
-    R.when(R.none(isNaN), highLight(column))
+    R.when(R.none(isNaN), highlightGold(column))
 )(range);
 
 const takeOffAllHightlight = R.pipe(
@@ -121,12 +145,28 @@ const takeOffAllHightlight = R.pipe(
     R.forEach(setStyle('backgroundColor', 'transparent'))
 );
 
+const greenFilter = R.pipe(
+    R.applySpec(greenHightlightTestObj),
+    R.whereEq(greenPass)
+);
+
+const colorTickerCompany = R.curry((color, list)=> R.pipe(
+    R.map(querySelectorAll('.ticker, .company')),
+    R.flatten,
+    R.map(R.prop('style')),
+    R.forEach(setStyle('backgroundColor', color))
+)(list));
+
 const highLightSubmit = function(e) {
     e.preventDefault();
     takeOffAllHightlight(allRows);
     validateValuesHightlight(yieldRange, yieldColumn);
     validateValuesHightlight(dividendRange, dividenColumns);
     validateValuesHightlight(payoutRange, payoutColumn);
+    
+    const [green, nonGreen] = R.partition(greenFilter, allRows);
+    colorTickerCompany('yellowgreen', green);
+    colorTickerCompany('transparent', nonGreen);
 }
 const columnClick = R.pipe(
     R.prop('currentTarget'),
