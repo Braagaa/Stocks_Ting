@@ -123,6 +123,7 @@ const highLightSubmit = function(e) {
     e.preventDefault();
     takeOffAllHightlight([yieldColumn, dividenColumns, payoutColumn]);
     validateValuesHightlight(yieldRange, yieldColumn);
+    validateValuesHightlight(dividendRange, dividenColumns);
     validateValuesHightlight(payoutRange, payoutColumn);
 }
 const columnClick = R.pipe(
