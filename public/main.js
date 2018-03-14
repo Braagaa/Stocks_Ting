@@ -7,7 +7,7 @@ const replace = R.invoker(2, 'replace');
 
 const removeFromParent = node => node.parentElement.removeChild(node);
 const appendChild = R.curry((parent, child) => parent.appendChild(child));
-const setStyle = R.curry((prop, value, style) => style[prop] = value);
+const setProp = R.curry((prop, value, style) => style[prop] = value);
 
 const getClassText = R.curry((child, parent) => 
     R.pipe(querySelector(child), R.prop('textContent'))(parent)
@@ -27,7 +27,6 @@ const order = R.curry(
 
 const childGreenTest = R.curry((query, row) => R.pipe(
     querySelector(query), 
-    R.tap(console.log),
     R.path(['style', 'backgroundColor']), 
     R.complement(R.equals('transparent'))
 )(row));
@@ -121,7 +120,7 @@ const newListDisplay = R.pipe(
 
 const paintColor = R.curry((color, list) => R.pipe(
     R.map(R.prop('style')),
-    R.forEach(setStyle('backgroundColor', color))
+    R.forEach(setProp('backgroundColor', color))
 )(list));
 
 const qualifiedForHighlight = R.curry((lt, gt, list) => 
@@ -149,7 +148,7 @@ const takeOffAllHightlight = R.pipe(
     R.map(R.prop('children')),
     R.flatten,
     R.map(R.prop('style')),
-    R.forEach(setStyle('backgroundColor', 'transparent'))
+    R.forEach(setProp('backgroundColor', 'transparent'))
 );
 
 const greenFilter = R.pipe(
@@ -161,7 +160,7 @@ const colorTickerCompany = R.curry((color, list)=> R.pipe(
     R.map(querySelectorAll('.ticker, .company')),
     R.flatten,
     R.map(R.prop('style')),
-    R.forEach(setStyle('backgroundColor', color))
+    R.forEach(setProp('backgroundColor', color))
 )(list));
 
 const highLightSubmit = function(e) {
@@ -175,6 +174,21 @@ const highLightSubmit = function(e) {
     colorTickerCompany('yellowgreen', green);
     colorTickerCompany('transparent', nonGreen);
 }
+
+//reset
+
+const resetOptions = R.pipe(
+    R.flatten,
+    R.tap(console.log),
+    R.forEach(setProp('value', ''))
+);
+
+const resetClick = function(e) {
+    e.preventDefault();
+    resetOptions([yieldRange, dividendRange, payoutRange]);
+    takeOffAllHightlight(allRows);
+}
+
 const columnClick = R.pipe(
     R.prop('currentTarget'),
     R.tap(removeOtherHeaderOrders),
@@ -194,4 +208,9 @@ R.pipe(
 R.pipe(
     querySelector('#highlight-button'),
     addEventListener('click', highLightSubmit)
+)(document);
+
+R.pipe(
+    querySelector('#reset-button'),
+    addEventListener('click', resetClick)
 )(document);
