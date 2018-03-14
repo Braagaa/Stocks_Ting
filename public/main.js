@@ -27,8 +27,9 @@ const order = R.curry(
 
 const childGreenTest = R.curry((query, row) => R.pipe(
     querySelector(query), 
+    R.tap(console.log),
     R.path(['style', 'backgroundColor']), 
-    R.complement(R.equals('transparent')),
+    R.complement(R.equals('transparent'))
 )(row));
 
 const dividendGreenTest = R.pipe(
@@ -118,8 +119,13 @@ const newListDisplay = R.pipe(
 
 //highlight features
 
+const paintColor = R.curry((color, list) => R.pipe(
+    R.map(R.prop('style')),
+    R.forEach(setStyle('backgroundColor', color))
+)(list));
+
 const qualifiedForHighlight = R.curry((lt, gt, list) => 
-    R.filter(R.propSatisfies(
+    R.partition(R.propSatisfies(
         R.pipe(parseFloat, R.both(R.gte(R.__, lt), R.lte(R.__, gt))),
         'textContent'
     ))
@@ -129,8 +135,9 @@ const highlightGold = R.curry((column, range) => R.pipe(
     R.sort((a, b) => a - b),
     R.apply(qualifiedForHighlight),
     R.applyTo(column),
-    R.map(R.prop('style')),
-    R.forEach(setStyle('backgroundColor', 'gold'))
+    R.zipWith((fn, list) => fn(list), 
+        [paintColor('gold'), paintColor('transparent')]
+    )
 )(range));
 
 const validateValuesHightlight = (range, column) => R.pipe(
@@ -159,7 +166,7 @@ const colorTickerCompany = R.curry((color, list)=> R.pipe(
 
 const highLightSubmit = function(e) {
     e.preventDefault();
-    takeOffAllHightlight(allRows);
+
     validateValuesHightlight(yieldRange, yieldColumn);
     validateValuesHightlight(dividendRange, dividenColumns);
     validateValuesHightlight(payoutRange, payoutColumn);
@@ -176,6 +183,8 @@ const columnClick = R.pipe(
     R.apply(order),
     R.forEach(newListDisplay)
 );
+
+takeOffAllHightlight(allRows);
 
 R.pipe(
     querySelectorAll('.header'),
