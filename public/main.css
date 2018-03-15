@@ -2,6 +2,10 @@ table {
     margin: 2em auto;
 }
 
+th {
+    text-align: center;
+}
+
 #filter {
     margin-top: 2em;
 }
@@ -9,6 +13,10 @@ table {
 #highlight-options {
     margin: 1em auto;
     max-width: 768px;
+}
+
+.header {
+    cursor: pointer;
 }
 
 .hide {

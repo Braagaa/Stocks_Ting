@@ -36,10 +36,15 @@ const dividendGreenTest = R.pipe(
     R.map(R.path(['style', 'backgroundColor'])),
     R.any(R.complement(R.equals('transparent')))
 );
-
+/*
+ * NOTE: If you decide to add more columns input it here in createList
+ * It will influence the up and down sort order of columns!!
+ */
 const createList = {
     ticker: getClassText('.ticker'),
     company: getClassText('.company'),
+    streak: getTextParseFloat('.streak'),
+    sector: getClassText('.sector'),
     yield: getTextParseFloat('.yield'),
     div1yr: getTextParseFloat('.div1yr'),
     div3yr: getTextParseFloat('.div3yr'),

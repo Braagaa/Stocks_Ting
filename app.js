@@ -27,6 +27,8 @@ const roundProp = R.curry((prop, round, obj) => R.pipe(
 const renamedProps = {
     Ticker: R.prop('B'),
     Company: R.prop('C'),
+    Streak: R.prop('D'),
+    Sector: R.prop('BG'),
     Yield: roundProp('F', 2),
     '1-yr': roundProp('I', 1),
     '3-yr': roundProp('J', 1),
@@ -35,7 +37,7 @@ const renamedProps = {
     'TTM EPS': roundProp('AE', 2)
 };
 
-const wantedTitles = ['B', 'C', 'F', 'I', 'J', 'K', 'L', 'AE'];
+const wantedTitles = ['B', 'C', 'D', 'BG', 'F', 'I', 'J', 'K', 'L', 'AE'];
 const selectedTitle = R.pipe(
     R.prop('Canadian Dividend All-Star List'),
     R.filter(R.propIs(Number, 'A')),
