@@ -21,6 +21,21 @@
     </fieldset>
     <button id="highlight-button" class="pure-button pure-button-primary">Highlight</button>
     <button id="reset-button" type="button" class="pure-button pure-button-primary">Reset</button>
+    <fieldset id="filter">
+        <legend>Filter Options</legend>
+        <label for="no-filter" class="pure-radio">
+            <input id="no-filter" type="radio" name="filter-options" value="no-filter" checked>
+        No Filter
+        </label>
+        <label for="only-highlighted" class="pure-radio">
+            <input id="only-highlighted" type="radio" name="filter-options" value="only-highlighted">
+        Only Highlighted
+        </label>
+        <label for="only-green" class="pure-radio">
+            <input id="only-green" type="radio" name="filter-options" value="only-green">
+        Only Green Highlighted
+        </label>
+    </fieldset>
 </form>
 
 <table class="pure-table pure-table-bordered">

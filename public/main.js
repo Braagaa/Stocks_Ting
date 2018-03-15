@@ -7,7 +7,7 @@ const replace = R.invoker(2, 'replace');
 
 const removeFromParent = node => node.parentElement.removeChild(node);
 const appendChild = R.curry((parent, child) => parent.appendChild(child));
-const setProp = R.curry((prop, value, style) => style[prop] = value);
+const setProp = R.curry((prop, value, obj) => obj[prop] = value);
 
 const getClassText = R.curry((child, parent) => 
     R.pipe(querySelector(child), R.prop('textContent'))(parent)
@@ -90,7 +90,9 @@ const getColumnClass = element => R.pipe(
     R.path(['parentElement', 'children']),
     R.indexOf(element),
     R.nth(R.__, sampleRow),
-    R.prop('className')
+    R.prop('className'),
+    R.split(' '),
+    R.nth(0)
 )(element);
 
 const getHeaderLogic = R.pipe(
@@ -109,6 +111,9 @@ const payoutRange = document.querySelectorAll('#payout-min, #payout-max');
 const yieldColumn = document.querySelectorAll('tbody .stock .yield');
 const payoutColumn = document.querySelectorAll('tbody .stock .ttm');
 const dividenColumns = document.querySelectorAll('.div1yr, .div3yr, .div5yr, .div10yr');
+const noFilterRadio = document.getElementById('no-filter');
+const onlyHighlightedRadio = document.getElementById('only-highlighted');
+const onlyGreeRadio = document.getElementById('only-green');
 
 const newListDisplay = R.pipe(
     R.prop('element'),
@@ -134,9 +139,7 @@ const highlightGold = R.curry((column, range) => R.pipe(
     R.sort((a, b) => a - b),
     R.apply(qualifiedForHighlight),
     R.applyTo(column),
-    R.zipWith((fn, list) => fn(list), 
-        [paintColor('gold'), paintColor('transparent')]
-    )
+    R.zipWith(R.call, [paintColor('gold'), paintColor('transparent')])
 )(range));
 
 const validateValuesHightlight = (range, column) => R.pipe(
@@ -173,13 +176,18 @@ const highLightSubmit = function(e) {
     const [green, nonGreen] = R.partition(greenFilter, allRows);
     colorTickerCompany('yellowgreen', green);
     colorTickerCompany('transparent', nonGreen);
+
+    if (onlyHighlightedRadio.checked === true) 
+        onlyHighlighted('gold', allRows);
+
+    if (onlyGreeRadio.checked === true)
+        onlyHighlighted('yellowgreen', allRows);
 }
 
 //reset
 
 const resetOptions = R.pipe(
     R.flatten,
-    R.tap(console.log),
     R.forEach(setProp('value', ''))
 );
 
@@ -187,7 +195,26 @@ const resetClick = function(e) {
     e.preventDefault();
     resetOptions([yieldRange, dividendRange, payoutRange]);
     takeOffAllHightlight(allRows);
+    setProp('checked', true, noFilterRadio);
+    displayRows(allRows);
 }
+
+//filter
+
+const addRemoveRows = R.curry((fn, list) => R.pipe(
+    R.map(R.prop('classList')),
+    R.forEach(fn('hide'))
+)(list));
+const hideRows = addRemoveRows(add);
+const displayRows = addRemoveRows(remove);
+const displayAllRows = addRemoveRows(remove);
+
+const onlyHighlighted = R.curry((color, list) => R.pipe(
+    R.map(R.prop('children')),
+    R.partition(R.any(R.pathEq(['style', 'backgroundColor'], color))),
+    R.map(R.map(R.pipe(R.nth(0), R.prop('parentElement')))),
+    R.zipWith(R.call, [displayRows, hideRows])
+)(list));
 
 const columnClick = R.pipe(
     R.prop('currentTarget'),
@@ -213,4 +240,26 @@ R.pipe(
 R.pipe(
     querySelector('#reset-button'),
     addEventListener('click', resetClick)
+)(document);
+
+R.pipe(
+    querySelector('#only-highlighted'),
+    addEventListener(
+        'change', 
+        R.partial(onlyHighlighted, ['gold', allRows])
+    )
+)(document);
+
+R.pipe(
+    querySelector('#only-green'),
+    addEventListener(
+        'change', 
+        R.partial(onlyHighlighted, ['yellowgreen', allRows]))
+)(document);
+
+R.pipe(
+    querySelector('#no-filter'),
+    addEventListener(
+        'change', 
+        R.partial(displayRows, [allRows]))
 )(document);
