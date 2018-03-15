@@ -19,26 +19,10 @@ const options = {
 
 const result = excelParse(options);
 
-const yieldPred = R.pipe(
-    R.prop('F'),
-    R.both(R.gte(R.__, 2), R.lte(R.__, 4))
-);
-const dividenPred = R.pipe(
-    R.props(['I', 'J', 'K', 'L']),
-    R.any(R.both(R.gte(R.__, 5), R.lte(R.__, 20)))
-);
-const payoutRatioPred = R.pipe(R.prop('AE'), R.lte(R.__, 100));
-
 const roundProp = R.curry((prop, round, obj) => R.pipe(
     R.prop(prop), 
     R.tryCatch(roundTo(R.__, round), R.always('n/a'))
 )(obj));
-
-const preds = {
-    yieldPred,
-    dividenPred,
-    payoutRatioPred
-};
 
 const renamedProps = {
     Ticker: R.prop('B'),
@@ -50,21 +34,6 @@ const renamedProps = {
     '10-yr': roundProp('L', 1),
     'TTM EPS': roundProp('AE', 2)
 };
-
-const filterStocks = R.pipe(
-    R.applySpec(preds), 
-    R.values, 
-    R.filter(R.equals(true)), 
-    R.length, 
-    R.gte(2)
-);
-
-const v1 = R.pipe(
-    R.prop('Canadian Dividend All-Star List'),
-    R.filter(R.propIs(Number, 'A')),
-    R.filter(filterStocks),
-    R.map(R.pick(['B', 'C', 'F', 'I', 'J', 'K', 'L', 'AE']))
-);
 
 const wantedTitles = ['B', 'C', 'F', 'I', 'J', 'K', 'L', 'AE'];
 const selectedTitle = R.pipe(
