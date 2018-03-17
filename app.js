@@ -14,6 +14,8 @@ app.use(express.static(resolve(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', resolve(__dirname, 'views'));
 
+const invalidError = 'The excel sheet selected is not valid. The column/spreadsheet may have changed.'
+
 const logReThrow = R.curry((customMessage, error)=> {
     console.error(error.message, error);
     throw new Error(customMessage);
@@ -29,7 +31,7 @@ const roundProp = R.curry((prop, round, obj) => R.pipe(
     R.tryCatch(roundTo(R.__, round), R.always('n/a'))
 )(obj));
 
-const renamedProps = {
+const renamedPropsCanada = {
     Ticker: R.prop('B'),
     Company: R.prop('C'),
     Streak: R.prop('D'),
@@ -42,13 +44,36 @@ const renamedProps = {
     'TTM EPS': roundProp('AE', 2)
 };
 
-const wantedTitles = ['B', 'C', 'D', 'BG', 'F', 'I', 'J', 'K', 'L', 'AE'];
-const selectedTitle = R.pipe(
+const renamedPropsUSA = {
+    Ticker: R.prop('B'),
+    Company: R.prop('A'),
+    Streak: R.prop('D'),
+    Sector: R.prop('C'),
+    Yield: roundProp('I', 2),
+    '1-yr': roundProp('AL', 1),
+    '3-yr': roundProp('AM', 1),
+    '5-yr': roundProp('AN', 1),
+    '10-yr': roundProp('AO', 1),
+    'TTM EPS': roundProp('W', 2)
+}
+//Keep it seperate as it might change one day
+const getCanadaColumns = R.pipe(
     R.prop('Canadian Dividend All-Star List'),
     R.filter(R.propIs(Number, 'A')),
-    R.map(R.pick(wantedTitles)),
-    R.map(R.applySpec(renamedProps))
+    R.map(R.applySpec(renamedPropsCanada))
 );
+
+const getUsaColumns = R.pipe(
+    R.prop('Champions'),
+    R.filter(R.propIs(Number, 'E')),
+    R.map(R.applySpec(renamedPropsUSA))
+);
+
+const getCountryLogic = [
+    [R.has('Canadian Dividend All-Star List'), getCanadaColumns],
+    [R.has('Champions'), getUsaColumns],
+    [R.T, getCanadaColumns]
+];
 
 const parseExcel = R.pipe(
     R.prop('query'),
@@ -57,7 +82,7 @@ const parseExcel = R.pipe(
     R.partial(resolve, [__dirname, 'xls']),
     R.objOf('sourceFile'),
     R.tryCatch(excelParse, logReThrow('Could not load file.')),
-    R.tryCatch(selectedTitle, logReThrow('The excel sheet selected is not valid. The column/spreadsheet may have changed.'))
+    R.tryCatch(R.cond(getCountryLogic), logReThrow(invalidError))
 );
 
 app.get('/', (req, res) => {
@@ -73,7 +98,7 @@ app.get('/load', (req, res) => {
 })
 
 app.get('/getStocks.json', (req, res) => {
-    res.json(selectedTitle(result));
+    res.json(parseExcel({fileName: 'canada', extension: 'xls'}));
 });
 
 const server = app.listen(3000, () => {
