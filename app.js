@@ -1,4 +1,5 @@
 const excelParse = require('convert-excel-to-json');
+const {readdirSync} = require('fs');
 const R = require('ramda');
 const {join, resolve} = require('path');
 const express = require('express');
@@ -13,11 +14,15 @@ app.use(express.static(resolve(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', resolve(__dirname, 'views'));
 
-const options = {
-    sourceFile: join(__dirname, 'xls', 'canada.xls')
-};
+const logReThrow = R.curry((customMessage, error)=> {
+    console.error(error.message, error);
+    throw new Error(customMessage);
+});
 
-const result = excelParse(options);
+const endsWith = R.curry((searchStr, str) => str.endsWith(searchStr));
+const fileContents = readdirSync('xls')
+.filter(R.either(endsWith('.xls'), endsWith('.xlsx')))
+.map(R.split('.'));
 
 const roundProp = R.curry((prop, round, obj) => R.pipe(
     R.prop(prop), 
@@ -45,12 +50,29 @@ const selectedTitle = R.pipe(
     R.map(R.applySpec(renamedProps))
 );
 
+const parseExcel = R.pipe(
+    R.prop('query'),
+    R.props(['fileName', 'extension']),
+    R.join('.'),
+    R.partial(resolve, [__dirname, 'xls']),
+    R.objOf('sourceFile'),
+    R.tryCatch(excelParse, logReThrow('Could not load file.')),
+    R.tryCatch(selectedTitle, logReThrow('The excel sheet selected is not valid. The column/spreadsheet may have changed.'))
+);
+
 app.get('/', (req, res) => {
-    res.render('index', {stocks: selectedTitle(result)});
-    server.close();
+    res.render('index', {files: fileContents});
 });
 
-app.get('/getStocks', (req, res) => {
+app.get('/load', (req, res) => {
+    try {
+        res.render('table', {stocks: parseExcel(req)});
+    } catch(e) {
+        res.render('error', {errorMessage: e.message});
+    }
+})
+
+app.get('/getStocks.json', (req, res) => {
     res.json(selectedTitle(result));
 });
 

@@ -1,1 +1,4 @@
 node_modules
+xls/*
+!xls/canada.xls
+!xls/usa.xls

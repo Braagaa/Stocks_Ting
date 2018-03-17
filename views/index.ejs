@@ -1,81 +1,11 @@
 <% include header %>
-<form class="pure-form" id="highlight-options">
-    <fieldset>
-        <legend>Highlight Options</legend>
-        <label>Yield:</label>
-        <input type="text" id="yield-min" placeholder="Min">
-        <span> - </span>
-        <input type="text" id="yield-max" placeholder="Max">
-    </fieldset>
-    <fieldset>
-        <label>Dividend:</label>
-        <input type="text" id="dividend-min" placeholder="Min">
-        <span> - </span>
-        <input type="text" id="dividend-max" placeholder="Max">
-    </fieldset>
-    <fieldset>
-        <label>Payout Ratio:</label>
-        <input type="text" id="payout-min" placeholder="Min">
-        <span> - </span>
-        <input type="text" id="payout-max" placeholder="Max">
-    </fieldset>
-    <button id="highlight-button" class="pure-button pure-button-primary">Highlight</button>
-    <button id="reset-button" type="button" class="pure-button pure-button-primary">Reset</button>
-    <fieldset id="filter">
-        <legend>Filter Options</legend>
-        <label for="no-filter" class="pure-radio">
-            <input id="no-filter" type="radio" name="filter-options" value="no-filter" checked>
-        No Filter
-        </label>
-        <label for="only-highlighted" class="pure-radio">
-            <input id="only-highlighted" type="radio" name="filter-options" value="only-highlighted">
-        Only Highlighted
-        </label>
-        <label for="only-green" class="pure-radio">
-            <input id="only-green" type="radio" name="filter-options" value="only-green">
-        Only Green Highlighted
-        </label>
-    </fieldset>
-</form>
-
-<table class="pure-table pure-table-bordered">
-    <thead>
-        <tr>
-            <th colspan="4">Info</th>
-            <th>CAD</th>
-            <th colspan="4">Dividend Growth Rates</th>
-            <th>Payout Ratio %</th>
-        </tr>
-        <tr>
-            <th class="header">Ticker</th>
-            <th class="header">Company</th>
-            <th class="header">Streak</th>
-            <th class="header">Sector</th>
-            <th class="header">Yield</th>
-            <th class="header">1-yr</th>
-            <th class="header">3-yr</th>
-            <th class="header">5-yr</th>
-            <th class="header">10-yr</th>
-            <th class="header">TTM EPS</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% stocks.forEach(stock => { %>
-            <tr class="stock">
-                <td class="ticker"><%= stock['Ticker'] %></td>
-                <td class="company"><%= stock['Company'] %></td>
-                <td class="streak"><%= stock['Streak'] %></td>
-                <td class="sector"><%= stock['Sector'] %></td>
-                <td class="yield"><%= stock['Yield'] %></td>
-                <td class="div1yr"><%= stock['1-yr'] %></td>
-                <td class="div3yr"><%= stock['3-yr'] %></td>
-                <td class="div5yr"><%= stock['5-yr'] %></td>
-                <td class="div10yr"><%= stock['10-yr'] %></td>
-                <td class="ttm"><%= stock['TTM EPS'] %></td>
-            </tr>
-        <% }); %>
-    </tbody>
-</table>
-<script src="https://cdn.jsdelivr.net/npm/ramda@0.25.0/dist/ramda.min.js"></script>
-<script src="main.js"></script>
+<h1>Stocks Ting</h1>
+<h2>Choose your spreadsheet:</h2>
+<ul class="files pure-menu-list">
+    <% files.forEach(([fileName, extension]) => { %>
+        <li class="pure-menu-item">
+            <a href="/load?fileName=<%= fileName %>&extension=<%= extension %>"><%= `${fileName}.${extension}` %></a>
+        </li>
+    <% }); %>
+</ul>
 <% include footer %>
