@@ -13,8 +13,9 @@ Put the proper excel sheets found at the appropriate sites into the *xls* folder
 ## Where to Download the Excelsheets
 
 [Canadian Version](http://www.dividendgrowthinvestingandretirement.com/canadian-dividend-all-star-list/)
+
 [American Version](http://www.dripinvesting.org/tools/tools.asp)
 
 ## Notes
 
-There is a new excelsheet that is produced every month with updated dividends. The program should continue to work them unless the author of the excelsheets decide to change something. If that is the case let me know!
+There is a new excelsheet that is produced every month with updated dividends. The program should continue to work for each update unless the author of the excelsheets decide to change something. If that is the case let me know!
