@@ -38,29 +38,40 @@
     </fieldset>
 </form>
 
-<table class="pure-table pure-table-bordered">
-    <thead>
-        <tr>
-            <th colspan="4">Info</th>
-            <th>CAD</th>
-            <th colspan="4">Dividend Growth Rates</th>
-            <th>Payout Ratio %</th>
-        </tr>
-        <tr>
-            <th class="header">Ticker</th>
-            <th class="header">Company</th>
-            <th class="header">Streak</th>
-            <th class="header">Sector</th>
-            <th class="header">Yield</th>
-            <th class="header">1-yr</th>
-            <th class="header">3-yr</th>
-            <th class="header">5-yr</th>
-            <th class="header">10-yr</th>
-            <th class="header">TTM EPS</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% stocks.forEach(stock => { %>
+<div class="table-wrapper">
+    <div class="table-inner-wrapper">
+    <div class="pure-menu pure-menu-horizontal spreadsheets">
+        <ul class="pure-menu-list">
+            <% for (const spreadsheet in spreadsheets) { %>
+                <li class="pure-menu-item spreadsheet<%= currentSpreadsheet === spreadsheet ? ' active' : '' %>"><a href="/load/<%= spreadsheet %>" class="pure-menu-link"><%= spreadsheet %></a></li>
+            <% } %>
+            <li class="pure-menu-item spreadsheet"><a href="/" class="pure-menu-link">Another File</a></li>
+        </ul>
+    </div>
+
+    <table class="pure-table pure-table-bordered">
+        <thead>
+            <tr>
+                <th colspan="4">Info</th>
+                <th>CAD</th>
+                <th colspan="4">Dividend Growth Rates</th>
+                <th>Payout Ratio %</th>
+            </tr>
+            <tr>
+                <th class="header">Ticker</th>
+                <th class="header">Company</th>
+                <th class="header">Streak</th>
+                <th class="header">Sector</th>
+                <th class="header">Yield</th>
+                <th class="header">1-yr</th>
+                <th class="header">3-yr</th>
+                <th class="header">5-yr</th>
+                <th class="header">10-yr</th>
+                <th class="header">TTM EPS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% stocks.forEach(stock => { %>
             <tr class="stock">
                 <td class="ticker"><%= stock['Ticker'] %></td>
                 <td class="company"><%= stock['Company'] %></td>
@@ -73,9 +84,12 @@
                 <td class="div10yr"><%= stock['10-yr'] %></td>
                 <td class="ttm"><%= stock['TTM EPS'] %></td>
             </tr>
-        <% }); %>
-    </tbody>
-</table>
+            <% }); %>
+        </tbody>
+    </table>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/ramda@0.25.0/dist/ramda.min.js"></script>
 <script src="main.js"></script>
 <% include footer %>

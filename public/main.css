@@ -1,5 +1,5 @@
 table {
-    margin: 2em auto;
+    margin: 0 0 2em;
 }
 
 a {
@@ -43,4 +43,26 @@ h2 {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+}
+
+.active {
+    background-color: yellowgreen;
+}
+
+.active a {
+    color: dodgerblue;
+}
+
+.active a:hover {
+    background-color: yellowgreen;
+}
+
+.table-wrapper {
+    display: flex;
+    width: 100%;
+    margin: 2em 0;
+}
+
+.table-inner-wrapper {
+    margin: 0 auto;
 }

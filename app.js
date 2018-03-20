@@ -1,15 +1,17 @@
-const excelParse = require('convert-excel-to-json');
-const {readdirSync} = require('fs');
 const R = require('ramda');
+const excelParseThump = require('convert-excel-to-json');
+const {readdirSync} = require('fs');
 const {join, resolve} = require('path');
 const express = require('express');
 const ejs = require('ejs');
 const roundTo = R.curry(require('round-to'));
 const opener = require('opener');
 
-const app = express();
+const excelParse = R.memoizeWith(R.prop('sourceFile'), excelParseThump);
 
-app.use(express.static(resolve(__dirname, 'public')));
+const app = express();
+app.use(express.static(join(__dirname, 'public')));
+app.use('/load', express.static('public'));
 
 app.set('view engine', 'ejs');
 app.set('views', resolve(__dirname, 'views'));
@@ -22,6 +24,8 @@ const logReThrow = R.curry((customMessage, error)=> {
 });
 
 const endsWith = R.curry((searchStr, str) => str.endsWith(searchStr));
+const startsWith = R.curry((searchStr, str) => str.startsWith(searchStr));
+
 const fileContents = readdirSync('xls')
 .filter(R.either(endsWith('.xls'), endsWith('.xlsx')))
 .map(R.split('.'));
@@ -69,11 +73,37 @@ const getUsaColumns = R.pipe(
     R.map(R.applySpec(renamedPropsUSA))
 );
 
+const spreadsheetPred = R.curry((index, prop, obj) => R.pipe(
+    R.nth(index),
+    R.propSatisfies(R.tryCatch(startsWith('http'), R.F), prop)
+)(obj));
+const spreadsheetCanada = spreadsheetPred(1, 'A');
+const spreadsheetUSA = spreadsheetPred(0, 'D');
+
+const getCanadaSpreadsheets = R.pipe(
+    R.pickBy(spreadsheetCanada),
+    R.mapObjIndexed(R.filter(R.propIs(Number, 'A'))),
+    R.mapObjIndexed(R.map(R.applySpec(renamedPropsCanada)))
+);
+
+const getUSASpreadsheets = R.pipe(
+    R.pickBy(spreadsheetUSA),
+    R.mapObjIndexed(R.filter(R.propIs(Number, 'E'))),
+    R.mapObjIndexed(R.map(R.applySpec(renamedPropsUSA)))
+);
+
 const getCountryLogic = [
-    [R.has('Canadian Dividend All-Star List'), getCanadaColumns],
-    [R.has('Champions'), getUsaColumns],
-    [R.T, getCanadaColumns]
+    [R.has('Canadian Dividend All-Star List'), getCanadaSpreadsheets],
+    [R.has('Champions'), getUSASpreadsheets],
+    [R.T, getCanadaSpreadsheets]
 ];
+
+const redirectFirstSpreadsheet = R.pipe(
+    R.keys,
+    R.head,
+    R.prepend('/load/'),
+    R.join('')
+);
 
 const parseExcel = R.pipe(
     R.prop('query'),
@@ -89,16 +119,28 @@ app.get('/', (req, res) => {
     res.render('index', {files: fileContents});
 });
 
-app.get('/load', (req, res) => {
+app.get('/load', (req, res, next) => {
     try {
-        res.render('table', {stocks: parseExcel(req)});
+        const spreadsheets = parseExcel(req);
+        app.locals.spreadsheets = spreadsheets;
+        res.redirect(redirectFirstSpreadsheet(spreadsheets));
     } catch(e) {
-        res.render('error', {errorMessage: e.message});
+        next(e);
     }
 })
 
-app.get('/getStocks.json', (req, res) => {
-    res.json(parseExcel({fileName: 'canada', extension: 'xls'}));
+app.get('/load/:spreadsheet', ({params: {spreadsheet}}, res, next) => {
+    const pred = app.locals.spreadsheets[spreadsheet];
+    if (pred) {
+        app.locals.stocks = pred;
+        res.render('table', {currentSpreadsheet: spreadsheet});
+    } else {
+        next(new Error(`The spreadsheet: ${spreadsheet} does not exist.`));
+    }
+});
+
+app.use(({message}, req, res, next) => {
+    res.status(500).render('error', {errorMessage: message});
 });
 
 const server = app.listen(3000, () => {
