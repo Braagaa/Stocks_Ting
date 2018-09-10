@@ -32,8 +32,6 @@ const fileContents = readdirSync('xls')
 .map(R.splitAt(-1))
 .map(R.adjust(R.pipe(R.join('.'), R.of), 0));
 
-console.log(fileContents);
-
 const roundProp = R.curry((prop, round, obj) => R.pipe(
     R.prop(prop), 
     R.tryCatch(roundTo(R.__, round), R.always('n/a'))
@@ -55,14 +53,14 @@ const renamedPropsCanada = {
 const renamedPropsUSA = {
     Ticker: R.prop('B'),
     Company: R.prop('A'),
-    Streak: R.prop('D'),
+    Streak: R.prop('E'),
     Sector: R.prop('C'),
-    Yield: roundProp('I', 2),
-    '1-yr': roundProp('AL', 1),
-    '3-yr': roundProp('AM', 1),
-    '5-yr': roundProp('AN', 1),
-    '10-yr': roundProp('AO', 1),
-    'TTM EPS': roundProp('W', 2)
+    Yield: roundProp('J', 2),
+    '1-yr': roundProp('S', 1),
+    '3-yr': roundProp('T', 1),
+    '5-yr': roundProp('U', 1),
+    '10-yr': roundProp('V', 1),
+    'TTM EPS': roundProp('AC', 2)
 }
 //Keep it seperate as it might change one day
 const getCanadaColumns = R.pipe(
@@ -78,13 +76,12 @@ const getUsaColumns = R.pipe(
     R.map(R.applySpec(renamedPropsUSA))
 );
 
-const spreadsheetPred = R.curry((index, prop, obj) => R.pipe(
+const spreadsheetPred = R.curry((index, prop, value, obj) => R.pipe(
     R.nth(index),
-    R.tap(console.log),
-    R.propSatisfies(R.tryCatch(startsWith('http'), R.F), prop)
+    R.propSatisfies(R.tryCatch(startsWith(value), R.F), prop)
 )(obj));
 const spreadsheetCanada = spreadsheetPred(1, 'A');
-const spreadsheetUSA = spreadsheetPred(0, 'D');
+const spreadsheetUSA = spreadsheetPred(0, 'A', 'U.S. Dividend');
 
 const getCanadaSpreadsheets = R.pipe(
     R.pickBy(spreadsheetCanada),
