@@ -28,7 +28,11 @@ const startsWith = R.curry((searchStr, str) => str.startsWith(searchStr));
 
 const fileContents = readdirSync('xls')
 .filter(R.either(endsWith('.xls'), endsWith('.xlsx')))
-.map(R.split('.'));
+.map(R.split('.'))
+.map(R.splitAt(-1))
+.map(R.adjust(R.pipe(R.join('.'), R.of), 0));
+
+console.log(fileContents);
 
 const roundProp = R.curry((prop, round, obj) => R.pipe(
     R.prop(prop), 
@@ -69,12 +73,14 @@ const getCanadaColumns = R.pipe(
 
 const getUsaColumns = R.pipe(
     R.prop('Champions'),
+    R.tap(console.log),
     R.filter(R.propIs(Number, 'E')),
     R.map(R.applySpec(renamedPropsUSA))
 );
 
 const spreadsheetPred = R.curry((index, prop, obj) => R.pipe(
     R.nth(index),
+    R.tap(console.log),
     R.propSatisfies(R.tryCatch(startsWith('http'), R.F), prop)
 )(obj));
 const spreadsheetCanada = spreadsheetPred(1, 'A');
@@ -112,7 +118,7 @@ const parseExcel = R.pipe(
     R.partial(resolve, [__dirname, 'xls']),
     R.objOf('sourceFile'),
     R.tryCatch(excelParse, logReThrow('Could not load file.')),
-    R.tryCatch(R.cond(getCountryLogic), logReThrow(invalidError))
+    R.tryCatch(R.cond(getCountryLogic), logReThrow(invalidError)),
 );
 
 app.get('/', (req, res) => {
